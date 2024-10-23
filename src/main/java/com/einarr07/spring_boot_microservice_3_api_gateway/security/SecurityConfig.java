@@ -1,5 +1,6 @@
 package com.einarr07.spring_boot_microservice_3_api_gateway.security;
 
+import com.einarr07.spring_boot_microservice_3_api_gateway.security.jwt.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 @Configuration
@@ -43,7 +45,15 @@ public class SecurityConfig {
                 .requestMatchers("/api/authentication/sing-in", "/api/authentication/sing-up").permitAll()
                 .and()
                 .authenticationManager(authenticationManager)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+
         return  http.build();
+    }
+
+    @Bean
+    public JwtAuthorizationFilter jwtAuthorizationFilter(){
+        return new JwtAuthorizationFilter();
     }
 }
