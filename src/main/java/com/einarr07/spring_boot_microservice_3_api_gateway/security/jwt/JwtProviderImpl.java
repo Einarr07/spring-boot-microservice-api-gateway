@@ -1,5 +1,6 @@
 package com.einarr07.spring_boot_microservice_3_api_gateway.security.jwt;
 
+import com.einarr07.spring_boot_microservice_3_api_gateway.model.User;
 import com.einarr07.spring_boot_microservice_3_api_gateway.security.UserPrincipal;
 import com.einarr07.spring_boot_microservice_3_api_gateway.utils.SecurityUtils;
 import io.jsonwebtoken.Claims;
@@ -42,6 +43,19 @@ public class JwtProviderImpl implements JwtProvider {
                 .setSubject(auth.getUsername())
                 .claim("roles", authorities)
                 .claim("userId", auth.getId())
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_IN_MS))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    @Override
+    public String generateToken(User user){
+        Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
+
+        return Jwts.builder()
+                .setSubject(user.getUsername())
+                .claim("roles", user.getRole())
+                .claim("userId", user.getId())
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_IN_MS))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
